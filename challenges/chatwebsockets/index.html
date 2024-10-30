@@ -2,25 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>WebSocket Client</title>
+  <title>WebSocket Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 </head>
-<body>
-  <h1>WebSocket Client</h1>
-  <input type="text" id="messageInput" placeholder="Enter message">
-  <button onclick="sendMessage()">Send</button>
-  <div id="messages"></div>
+<body class="bg-gray-100 p-6">
+  <div id="login" class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">Login</h1>
+    <input type="text" id="username" placeholder="Enter username" class="border p-2 rounded w-full mb-2">
+    <button onclick="login()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Login</button>
+  </div>
+
+  <div id="chat" class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
+    <h1 class="text-2xl font-bold mb-4 text-center">WebSocket Chat</h1>
+    <div class="mb-4">
+      <input type="text" id="messageInput" placeholder="Enter message" class="border p-2 rounded w-full mb-2">
+      <button onclick="sendMessage()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Send</button>
+    </div>
+    <div id="messages" class="bg-gray-50 p-4 rounded-lg shadow-inner h-64 overflow-y-auto"></div>
+  </div>
 
   <script>
-    const socket = new WebSocket('ws://localhost:8080');
+    const socket = io();
 
-    socket.onopen = () => {
+    socket.on('connect', () => {
       console.log('Connected to server');
-    };
+    });
 
-    socket.onmessage = event => {
+    socket.on('message', msg => {
       const messagesDiv = document.getElementById('messages');
-      messagesDiv.innerHTML += `<p>${event.data}</p>`;
-    };
+      messagesDiv.innerHTML += `<p class="border-b py-2">${msg}</p>`;
+    });
+
+    function login() {
+      const username = document.getElementById('username').value;
+      if (username) {
+        document.getElementById('login').classList.add('hidden');
+        document.getElementById('chat').classList.remove('hidden');
+      }
+    }
 
     function sendMessage() {
       const input = document.getElementById('messageInput');
